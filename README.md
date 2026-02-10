@@ -62,3 +62,25 @@ Check out [our documentation](https://docs.astro.build) or jump into our [Discor
 ## Credit
 
 This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
+
+## 🎬 PHP Movie Database App (TMDB/IMDb style)
+
+This repository now also includes a standalone PHP movie database script in `php-app/`.
+
+### Features
+- Browse trending/top-rated movies
+- Search by title or genre
+- Movie detail pages with cast and user reviews
+- Simple admin panel to add new movies
+- SQLite persistence with auto-setup + seed data
+
+### Run locally
+
+```bash
+cd php-app/public
+php -S 127.0.0.1:8080
+```
+
+Open `http://127.0.0.1:8080` in your browser.
+
+> The SQLite database is created automatically at `php-app/data/movies.db`.
