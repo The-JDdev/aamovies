@@ -2,4 +2,24 @@
 <resources>
     <string name="app_name">Aamovies</string>
     <string name="notification_channel_name">Aamovies Notifications</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_movies">Movies</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_watchlist">Watchlist</string>
+    <string name="nav_profile">Profile</string>
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_btn">Sign In</string>
+    <string name="login_google">Continue with Google</string>
+    <string name="login_anonymous">Browse as Guest</string>
+    <string name="login_signup">Create Account</string>
+    <string name="trending_title">Trending Now</string>
+    <string name="all_movies_title">All Movies</string>
+    <string name="search_hint">Search movies…</string>
+    <string name="watchlist_empty">Your watchlist is empty</string>
+    <string name="download_btn_prefix">Download</string>
+    <string name="ad_loading">Opening ad, please wait…</string>
+    <string name="about_text">AAMovies is your ultimate destination for streaming and downloading movies, web series, and TV shows. We provide high-quality content in multiple languages and formats.</string>
+    <string name="contact_email">support@aamovies.com</string>
+    <string name="contact_telegram">@aamovies_support</string>
 </resources>

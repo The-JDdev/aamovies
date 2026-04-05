@@ -2,7 +2,18 @@
 <resources>
     <color name="colorPrimary">#00a8ff</color>
     <color name="colorPrimaryDark">#0097e6</color>
-    <color name="colorAccent">#ff6b6b</color>
+    <color name="colorAccent">#00a8ff</color>
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
+    <color name="bg_app">#0a0a0a</color>
+    <color name="bg_card">#1a1a1a</color>
+    <color name="bg_surface">#2a2a2a</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#aaaaaa</color>
+    <color name="text_hint">#666666</color>
+    <color name="divider">#333333</color>
+    <color name="accent_blue">#00a8ff</color>
+    <color name="accent_red">#e50914</color>
+    <color name="overlay_dark">#CC000000</color>
+    <color name="bottom_nav_bg">#111111</color>
 </resources>
