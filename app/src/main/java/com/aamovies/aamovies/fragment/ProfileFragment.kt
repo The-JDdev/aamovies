@@ -1,5 +1,6 @@
 package com.aamovies.aamovies.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.aamovies.aamovies.LoginActivity
 import com.aamovies.aamovies.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -49,8 +51,10 @@ class ProfileFragment : Fragment() {
 
         btnLogout.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
-            Toast.makeText(requireContext(), "Logged out", Toast.LENGTH_SHORT).show()
-            requireActivity().finish()
+            Toast.makeText(requireContext(), "Signed out successfully", Toast.LENGTH_SHORT).show()
+            val intent = Intent(requireContext(), LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
         }
     }
 }

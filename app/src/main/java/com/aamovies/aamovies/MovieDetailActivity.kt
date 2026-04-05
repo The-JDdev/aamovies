@@ -45,6 +45,9 @@ class MovieDetailActivity : AppCompatActivity() {
         val tvLanguage = findViewById<TextView>(R.id.tv_detail_language)
         val tvQuality = findViewById<TextView>(R.id.tv_detail_quality)
         val tvDescription = findViewById<TextView>(R.id.tv_detail_description)
+        val tvPinnedBadge = findViewById<TextView>(R.id.tv_detail_pinned)
+        val tvTrendingBadge = findViewById<TextView>(R.id.tv_detail_trending)
+        val tvType = findViewById<TextView>(R.id.tv_detail_type)
         val rvScreenshots = findViewById<RecyclerView>(R.id.rv_screenshots)
         val rvDownloads = findViewById<RecyclerView>(R.id.rv_downloads)
         val sectionScreenshots = findViewById<LinearLayout>(R.id.section_screenshots)
@@ -64,21 +67,36 @@ class MovieDetailActivity : AppCompatActivity() {
             tvQuality.text = movie.quality.ifEmpty { "HD" }
             tvDescription.text = movie.description
 
+            tvPinnedBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
+            tvTrendingBadge.visibility = if (movie.trending) View.VISIBLE else View.GONE
+
+            if (movie.type.isNotEmpty()) {
+                tvType.text = movie.type
+                tvType.visibility = View.VISIBLE
+            }
+
             if (movie.poster.isNotEmpty()) {
                 Glide.with(this).load(movie.poster).centerCrop()
                     .placeholder(R.drawable.placeholder_movie).into(imgPoster)
             }
 
+            // Screenshots
+            val screenshotUrls = movie.screenshots.values.filter { it.isNotEmpty() }
+            if (screenshotUrls.isNotEmpty()) {
+                sectionScreenshots.visibility = View.VISIBLE
+                rvScreenshots.layoutManager = LinearLayoutManager(
+                    this, LinearLayoutManager.HORIZONTAL, false
+                )
+                rvScreenshots.adapter = ScreenshotAdapter(screenshotUrls)
+            }
+
+            // Download links
             val dlLinks = movie.downloadLinks.values.toList()
             if (dlLinks.isNotEmpty()) {
                 sectionDownloads.visibility = View.VISIBLE
                 rvDownloads.layoutManager = LinearLayoutManager(this)
-                rvDownloads.adapter = DownloadAdapter(dlLinks) { link ->
-                    handleDownloadClick(link)
-                }
+                rvDownloads.adapter = DownloadAdapter(dlLinks) { link -> handleDownloadClick(link) }
             }
-
-            sectionScreenshots.visibility = View.GONE
 
             ref.child("views").get().addOnSuccessListener { v ->
                 ref.child("views").setValue((v.getValue(Long::class.java) ?: 0L) + 1L)
@@ -91,7 +109,7 @@ class MovieDetailActivity : AppCompatActivity() {
         if (uid != null) {
             val userRef = FirebaseDatabase.getInstance().getReference("users/$uid")
             val watchRef = userRef.child("watchlist/$movieId")
-            val likeRef = userRef.child("liked/$movieId")
+            val likeRef = userRef.child("liked_movies/$movieId")
 
             watchRef.get().addOnSuccessListener { snap ->
                 btnWatchlist.text = if (snap.exists()) "✓ In Watchlist" else "+ Watchlist"
@@ -111,14 +129,20 @@ class MovieDetailActivity : AppCompatActivity() {
                     }
                 }
             }
+
             btnLike.setOnClickListener {
                 likeRef.get().addOnSuccessListener { snap ->
                     if (snap.exists()) {
+                        // Unlike: remove from liked_movies
                         likeRef.removeValue()
                         btnLike.text = "♡ Like"
+                        Toast.makeText(this, "Removed from liked movies", Toast.LENGTH_SHORT).show()
                     } else {
-                        likeRef.setValue(true)
+                        // Like: save movie ID + title to liked_movies
+                        val title = tvTitle.text.toString()
+                        likeRef.setValue(mapOf("title" to title, "likedAt" to System.currentTimeMillis()))
                         btnLike.text = "♥ Liked"
+                        Toast.makeText(this, "Added to liked movies ♥", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -134,8 +158,7 @@ class MovieDetailActivity : AppCompatActivity() {
             isReturningFromAd = false
             val pendingUrl = AdManager.consumePendingUrl(this)
             if (!pendingUrl.isNullOrEmpty()) {
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(pendingUrl))
-                startActivity(intent)
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(pendingUrl)))
             }
         }
     }
@@ -146,7 +169,7 @@ class MovieDetailActivity : AppCompatActivity() {
             return
         }
         isReturningFromAd = true
-        AdManager.handleMovieLinkClick(this, link.url)
+        AdManager.handleDownloadLinkClick(this, link.url)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -20,6 +20,9 @@ class MovieAdapter(
         val title: TextView = itemView.findViewById(R.id.tv_movie_title)
         val meta: TextView = itemView.findViewById(R.id.tv_movie_meta)
         val badge: TextView = itemView.findViewById(R.id.tv_quality_badge)
+        val pinnedBadge: TextView = itemView.findViewById(R.id.tv_pinned_badge)
+        val trendingBadge: TextView = itemView.findViewById(R.id.tv_trending_badge)
+        val typeTag: TextView = itemView.findViewById(R.id.tv_type_tag)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,6 +43,20 @@ class MovieAdapter(
         }
         holder.badge.text = movie.quality.ifEmpty { "HD" }
         holder.badge.visibility = View.VISIBLE
+
+        // Pinned badge
+        holder.pinnedBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
+
+        // Trending badge
+        holder.trendingBadge.visibility = if (movie.trending && !movie.pinned) View.VISIBLE else View.GONE
+
+        // Type tag (Series only; skip if "Movie" to avoid noise)
+        if (movie.type == "Series") {
+            holder.typeTag.text = "Series"
+            holder.typeTag.visibility = View.VISIBLE
+        } else {
+            holder.typeTag.visibility = View.GONE
+        }
 
         if (movie.poster.isNotEmpty()) {
             Glide.with(holder.poster.context)

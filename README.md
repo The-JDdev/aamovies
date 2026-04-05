@@ -1,40 +1,49 @@
-# Aamovies — Native Android App
+# AAMovies 2.0 — Native Android App
 
-A native Android (Kotlin) movie streaming app with WebView UI and full native bridge architecture.
+A full-featured movie streaming directory app built with **100% native Android** (XML + Kotlin).
+No WebView for UI. Firebase Realtime Database backend.
 
-## Architecture
-
-HTML files serve as the **UI layer only**. All logic runs natively in Kotlin:
-
-| Bridge | Registered Name | Responsibility |
-|--------|----------------|----------------|
-| AuthBridge | `AndroidAuth` | Firebase Email/Password, Google, Anonymous sign-in |
-| FCMBridge | `AndroidFCM` | FCM token, topic subscribe/unsubscribe |
-| AdBridge | `AndroidAd` | Native ad bypass (AdBlocker-immune double-click) |
-| DownloadBridge | `AndroidDownload` | Android DownloadManager |
-| AppBridge | `AndroidApp` | Toast, Share, Clipboard, platform info |
+## Features
+- Browse movies: trending, pinned, latest
+- Discover by Category / Genre / Year (horizontal chip filters)
+- Movie detail: poster, description, screenshots gallery, download links
+- Liked Movies — heart any movie, view all liked from the overflow menu
+- Watchlist — save movies to watch later
+- Ad redirect support (configure your own ad URLs in `AdManager.kt`)
+- Background popup ad WebView (optional — configure URL in `AdManager.kt`)
+- Register / Login / Profile (Firebase Auth)
 
 ## Setup
 
-1. Clone repo
-2. Add your `google-services.json` to `app/` (get from Firebase Console)
-3. Create your keystore and set env vars:
-   ```
-   KEYSTORE_FILE=your.keystore
-   KEYSTORE_PASSWORD=yourpassword
-   KEY_ALIAS=youralias
-   KEY_PASSWORD=yourpassword
-   ```
-4. Open in Android Studio and build
+### 1. Firebase
+- Create a Firebase project at https://console.firebase.google.com
+- Add an Android app with package name `com.aamovies.aamovies`
+- Download `google-services.json` and place it at `app/google-services.json`
 
-## Key Features
+### 2. Ad Configuration (optional)
+Open `app/src/main/java/com/aamovies/aamovies/util/AdManager.kt` and fill in:
+```kotlin
+private const val AD_REDIRECT_URL = "YOUR_AD_REDIRECT_URL"
+private const val AD_POPUP_SCRIPT_URL = "YOUR_POPUP_SCRIPT_URL"
+```
 
-- **Native Firebase Auth** — no JS SDK; login/logout fully in Kotlin
-- **Native FCM** — push notifications, silent topic subscription on first launch
-- **Ad-blocker immune ads** — double-click logic in native code, opens in system browser
-- **Persistent downloads** — Android DownloadManager with notification bar progress
-- **Netflix-style splash** — programmatic animation (no XML animators)
+### 3. Build
+```bash
+./gradlew assembleRelease
+```
 
-## Package
+## Project Structure
+```
+app/src/main/java/com/aamovies/aamovies/
+  ├── fragment/       — HomeFragment, ProfileFragment, WatchlistFragment
+  ├── adapter/        — MovieAdapter, ChipAdapter, DownloadAdapter, ScreenshotAdapter
+  ├── model/          — Movie, DownloadLink
+  ├── util/           — AdManager
+  ├── LoginActivity, RegisterActivity
+  ├── MovieDetailActivity
+  ├── FilteredMoviesActivity
+  └── LikedMoviesActivity
+```
 
-`com.aamovies.aamovies` | Min SDK 24 | Target SDK 34
+## License
+MIT

@@ -63,7 +63,9 @@ class LoginActivity : AppCompatActivity() {
         btnGoogle.setOnClickListener { handleGoogleLogin() }
         btnGuest.setOnClickListener { handleAnonymousLogin() }
         tvForgotPassword.setOnClickListener { handlePasswordReset() }
-        btnSignup.setOnClickListener { handleEmailSignup() }
+        btnSignup.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
+        }
     }
 
     private fun handleEmailLogin() {

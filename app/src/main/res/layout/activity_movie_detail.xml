@@ -22,6 +22,7 @@
             android:orientation="vertical"
             android:padding="16dp">
 
+            <!-- Title row -->
             <TextView
                 android:id="@+id/tv_detail_title"
                 android:layout_width="match_parent"
@@ -31,11 +32,59 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
+            <!-- Badges row: Pinned, Trending, Type -->
             <LinearLayout
+                android:id="@+id/row_badges"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/tv_detail_pinned"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📌 Pinned"
+                    android:textColor="@color/white"
+                    android:background="#CC00a8ff"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginEnd="6dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_detail_trending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔥 Trending"
+                    android:textColor="@color/white"
+                    android:background="#CCFF5722"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:layout_marginEnd="6dp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/tv_detail_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/accent_blue"
+                    android:background="@drawable/bg_badge"
+                    android:textSize="11sp"
+                    android:paddingHorizontal="8dp"
+                    android:paddingVertical="3dp"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+            <!-- Meta row: year, category, language, quality -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
 
                 <TextView
                     android:id="@+id/tv_detail_year"
@@ -73,6 +122,7 @@
 
             </LinearLayout>
 
+            <!-- Watchlist / Like buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -104,6 +154,7 @@
 
             </LinearLayout>
 
+            <!-- Description -->
             <TextView
                 android:id="@+id/tv_detail_description"
                 android:layout_width="match_parent"
@@ -115,6 +166,7 @@
 
         </LinearLayout>
 
+        <!-- Screenshots section -->
         <LinearLayout
             android:id="@+id/section_screenshots"
             android:layout_width="match_parent"
@@ -141,6 +193,7 @@
 
         </LinearLayout>
 
+        <!-- Download section -->
         <LinearLayout
             android:id="@+id/section_downloads"
             android:layout_width="match_parent"
