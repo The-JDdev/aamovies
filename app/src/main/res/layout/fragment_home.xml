@@ -60,6 +60,73 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
+            <!-- ── TRENDING ── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🔥 Trending Now"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingStart="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tv_empty_trending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No trending movies yet."
+                android:textColor="@color/text_secondary"
+                android:paddingHorizontal="16dp"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_trending"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ── LATEST ── -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🎬 Latest Movies"
+                android:textColor="@color/text_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:paddingStart="16dp"
+                android:paddingBottom="12dp" />
+
+            <TextView
+                android:id="@+id/tv_empty_featured"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No movies added yet."
+                android:textColor="@color/text_secondary"
+                android:paddingHorizontal="16dp"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_featured"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:nestedScrollingEnabled="false"
+                android:layout_marginBottom="8dp" />
+
+            <!-- ── Divider ── -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#1AFFFFFF"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp" />
+
             <!-- ── DISCOVER BY CATEGORY ── -->
             <TextView
                 android:layout_width="wrap_content"
@@ -121,74 +188,8 @@
                 android:paddingStart="16dp"
                 android:paddingEnd="8dp"
                 android:clipToPadding="false"
-                android:overScrollMode="never" />
-
-            <!-- ── Divider ── -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#1AFFFFFF"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="4dp" />
-
-            <!-- ── TRENDING ── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🔥 Trending Now"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="12dp" />
-
-            <TextView
-                android:id="@+id/tv_empty_trending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No trending movies yet."
-                android:textColor="@color/text_secondary"
-                android:paddingHorizontal="16dp"
-                android:visibility="gone"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_trending"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp" />
-
-            <!-- ── LATEST ── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🎬 Latest Movies"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingBottom="12dp" />
-
-            <TextView
-                android:id="@+id/tv_empty_featured"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="No movies added yet."
-                android:textColor="@color/text_secondary"
-                android:paddingHorizontal="16dp"
-                android:visibility="gone"
-                android:layout_marginBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_featured"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:nestedScrollingEnabled="false"
-                android:paddingBottom="24dp" />
+                android:overScrollMode="never"
+                android:layout_marginBottom="24dp" />
 
         </LinearLayout>
     </ScrollView>
