@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aamovies - Offline</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        .icon { font-size: 64px; margin-bottom: 24px; }
+        h1 { font-size: 28px; margin-bottom: 12px; color: #00a8ff; }
+        p { font-size: 16px; color: #888; margin-bottom: 32px; }
+        button {
+            background: linear-gradient(135deg, #00a8ff, #0097e6);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="icon">📡</div>
+        <h1>No Internet Connection</h1>
+        <p>Please check your network and try again.<br>Aamovies requires internet to stream content.</p>
+        <button onclick="location.reload()">Retry</button>
+    </div>
+</body>
+</html>
