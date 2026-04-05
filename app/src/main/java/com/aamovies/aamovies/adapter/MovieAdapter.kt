@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide
 
 class MovieAdapter(
     private var movies: List<Movie>,
+    private val isHorizontal: Boolean = false,
     private val onMovieClick: (Movie) -> Unit
 ) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
@@ -28,6 +29,12 @@ class MovieAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_movie_card, parent, false)
+        if (isHorizontal) {
+            val widthPx = (140 * parent.context.resources.displayMetrics.density).toInt()
+            view.layoutParams = ViewGroup.MarginLayoutParams(widthPx, ViewGroup.LayoutParams.WRAP_CONTENT).also {
+                it.setMargins(6, 6, 6, 6)
+            }
+        }
         return ViewHolder(view)
     }
 
@@ -44,13 +51,9 @@ class MovieAdapter(
         holder.badge.text = movie.quality.ifEmpty { "HD" }
         holder.badge.visibility = View.VISIBLE
 
-        // Pinned badge
         holder.pinnedBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
-
-        // Trending badge
         holder.trendingBadge.visibility = if (movie.trending && !movie.pinned) View.VISIBLE else View.GONE
 
-        // Type tag (Series only; skip if "Movie" to avoid noise)
         if (movie.type == "Series") {
             holder.typeTag.text = "Series"
             holder.typeTag.visibility = View.VISIBLE

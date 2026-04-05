@@ -85,9 +85,11 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_trending"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
-                android:nestedScrollingEnabled="false"
+                android:layout_height="240dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:clipToPadding="false"
+                android:overScrollMode="never"
                 android:layout_marginBottom="16dp" />
 
             <!-- ── LATEST ── -->

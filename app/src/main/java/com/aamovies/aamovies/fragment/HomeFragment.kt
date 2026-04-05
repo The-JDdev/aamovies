@@ -57,14 +57,14 @@ class HomeFragment : Fragment() {
         tvEmptyFeatured = view.findViewById(R.id.tv_empty_featured)
         val btnOverflow = view.findViewById<ImageView>(R.id.btn_overflow_menu)
 
-        rvTrending.layoutManager = GridLayoutManager(requireContext(), 2)
+        rvTrending.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvFeatured.layoutManager = GridLayoutManager(requireContext(), 2)
         rvCategories.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvGenres.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvYears.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        trendingAdapter = MovieAdapter(emptyList()) { movie -> handleMovieCardClick(movie) }
-        featuredAdapter = MovieAdapter(emptyList()) { movie -> handleMovieCardClick(movie) }
+        trendingAdapter = MovieAdapter(emptyList(), isHorizontal = true) { movie -> handleMovieCardClick(movie) }
+        featuredAdapter = MovieAdapter(emptyList(), isHorizontal = false) { movie -> handleMovieCardClick(movie) }
         rvTrending.adapter = trendingAdapter
         rvFeatured.adapter = featuredAdapter
 
@@ -119,7 +119,7 @@ class HomeFragment : Fragment() {
                             .thenByDescending { it.trending }
                             .thenByDescending { it.createdAt }
                     )
-                    val trendingList = sorted.filter { it.trending || it.pinned }
+                    val trendingList = sorted.filter { it.trending || it.pinned }.take(15)
                     val featuredList = sorted.take(20)
                     trendingAdapter?.updateMovies(trendingList)
                     featuredAdapter?.updateMovies(featuredList)
