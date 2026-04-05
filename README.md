@@ -1,34 +1,40 @@
-# Aamovies
+# Aamovies — Native Android App
 
-A high-performance movie streaming and downloading web app, powered by Firebase.
+A native Android (Kotlin) movie streaming app with WebView UI and full native bridge architecture.
 
-## Features
+## Architecture
 
-- Browse & search movies/web series
-- HD quality streaming with download options
-- User authentication (Email, Google, Anonymous)
-- Watchlist & Liked movies
-- Firebase Realtime Database powered
-- Mobile-first, Android WebView optimized
-- Smart screenshot layout detection
-- Unlimited download links per movie
-- FCM push notifications
+HTML files serve as the **UI layer only**. All logic runs natively in Kotlin:
 
-## Tech Stack
+| Bridge | Registered Name | Responsibility |
+|--------|----------------|----------------|
+| AuthBridge | `AndroidAuth` | Firebase Email/Password, Google, Anonymous sign-in |
+| FCMBridge | `AndroidFCM` | FCM token, topic subscribe/unsubscribe |
+| AdBridge | `AndroidAd` | Native ad bypass (AdBlocker-immune double-click) |
+| DownloadBridge | `AndroidDownload` | Android DownloadManager |
+| AppBridge | `AndroidApp` | Toast, Share, Clipboard, platform info |
 
-- HTML5, CSS3, JavaScript (Vanilla)
-- Firebase (Auth, Realtime DB, Storage, FCM)
-- Font Awesome icons
-- Google Fonts (Poppins)
+## Setup
 
-## Firebase Setup
+1. Clone repo
+2. Add your `google-services.json` to `app/` (get from Firebase Console)
+3. Create your keystore and set env vars:
+   ```
+   KEYSTORE_FILE=your.keystore
+   KEYSTORE_PASSWORD=yourpassword
+   KEY_ALIAS=youralias
+   KEY_PASSWORD=yourpassword
+   ```
+4. Open in Android Studio and build
 
-1. Create a Firebase project
-2. Enable Authentication (Email/Password, Google, Anonymous)
-3. Set up Realtime Database
-4. Configure rules for your deployment
-5. Update `firebaseConfig` in `index.html`
+## Key Features
 
-## License
+- **Native Firebase Auth** — no JS SDK; login/logout fully in Kotlin
+- **Native FCM** — push notifications, silent topic subscription on first launch
+- **Ad-blocker immune ads** — double-click logic in native code, opens in system browser
+- **Persistent downloads** — Android DownloadManager with notification bar progress
+- **Netflix-style splash** — programmatic animation (no XML animators)
 
-© 2025 Aamovies. All rights reserved.
+## Package
+
+`com.aamovies.aamovies` | Min SDK 24 | Target SDK 34
