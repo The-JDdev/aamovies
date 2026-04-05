@@ -2,6 +2,7 @@ package com.aamovies.aamovies.bridge
 
 import android.content.Intent
 import android.os.Handler
+import com.aamovies.aamovies.R
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import androidx.activity.result.ActivityResultLauncher
