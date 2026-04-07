@@ -13,11 +13,11 @@ import android.widget.PopupMenu
 import android.widget.ScrollView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.aamovies.aamovies.FilteredMoviesActivity
 import com.aamovies.aamovies.LikedMoviesActivity
 import com.aamovies.aamovies.LoginActivity
 import com.aamovies.aamovies.MainActivity
@@ -40,10 +40,6 @@ class HomeFragment : Fragment() {
     private var currentPage = 0
     private var allLatestMovies: List<Movie> = emptyList()
     private var pinnedMovies: List<Movie> = emptyList()
-
-    // Active browse filter (null = show all)
-    private var browseFilterType: String? = null   // "category", "genre", "year"
-    private var browseFilterValue: String? = null
 
     private lateinit var scrollViewHome: ScrollView
     private lateinit var rvTrending: RecyclerView
@@ -191,24 +187,18 @@ class HomeFragment : Fragment() {
 
     /**
      * Fills a LinearLayout with outline pill TextViews for browse chips.
-     * Active chip gets filled blue; inactive chips get blue outline on dark bg.
-     * Clicking an active chip clears the filter; clicking another chip sets it.
+     * Tapping any chip opens FilteredMoviesActivity for that filter type + value.
      */
     private fun buildBrowseRow(container: LinearLayout, items: List<String>, filterType: String) {
         container.removeAllViews()
         val density = resources.displayMetrics.density
 
         items.forEach { label ->
-            val isActive = browseFilterType == filterType && browseFilterValue == label
-
             val tv = TextView(requireContext()).apply {
                 text = label
                 textSize = 13f
-                setTextColor(if (isActive) 0xFF000000.toInt() else 0xFFFFFFFF.toInt())
-                setBackgroundResource(
-                    if (isActive) R.drawable.bg_browse_chip_active
-                    else R.drawable.bg_browse_chip
-                )
+                setTextColor(0xFFFFFFFF.toInt())
+                setBackgroundResource(R.drawable.bg_browse_chip)
                 setPadding(
                     (16 * density).toInt(),
                     (8 * density).toInt(),
@@ -221,52 +211,23 @@ class HomeFragment : Fragment() {
                 ).also { it.setMargins((4 * density).toInt(), 0, (4 * density).toInt(), 0) }
 
                 setOnClickListener {
-                    if (browseFilterType == filterType && browseFilterValue == label) {
-                        // Tap same chip → clear filter
-                        browseFilterType = null
-                        browseFilterValue = null
-                    } else {
-                        // Tap new chip → set filter
-                        browseFilterType = filterType
-                        browseFilterValue = label
-                    }
-                    currentPage = 0
-                    refreshGrid()
-                    // Rebuild all browse rows to update highlight states
-                    populateBrowseSections(allLatestMovies + pinnedMovies)
-                    // Scroll to top so user can see filtered results
-                    scrollViewHome.post { scrollViewHome.smoothScrollTo(0, 0) }
+                    startActivity(
+                        Intent(requireContext(), FilteredMoviesActivity::class.java).apply {
+                            putExtra(FilteredMoviesActivity.EXTRA_FILTER_TYPE, filterType)
+                            putExtra(FilteredMoviesActivity.EXTRA_FILTER_VALUE, label)
+                        }
+                    )
                 }
             }
             container.addView(tv)
         }
     }
 
-    /**
-     * Filter allLatestMovies by the active browse filter.
-     */
-    private fun applyBrowseFilter(): List<Movie> {
-        if (browseFilterType == null || browseFilterValue == null) return allLatestMovies
-        return when (browseFilterType) {
-            "category" -> allLatestMovies.filter {
-                it.category.trim().equals(browseFilterValue, ignoreCase = true)
-            }
-            "genre" -> allLatestMovies.filter { movie ->
-                movie.genre.split(",").any { g -> g.trim().equals(browseFilterValue, ignoreCase = true) }
-            }
-            "year" -> allLatestMovies.filter {
-                it.year.trim() == browseFilterValue
-            }
-            else -> allLatestMovies
-        }
-    }
-
     private fun refreshGrid() {
         if (!isAdded) return
-        val filtered = applyBrowseFilter()
         val start = currentPage * pageSize
-        val end = min(start + pageSize, filtered.size)
-        val pageMovies = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+        val end = min(start + pageSize, allLatestMovies.size)
+        val pageMovies = if (start < allLatestMovies.size) allLatestMovies.subList(start, end) else emptyList()
 
         // Pinned movies always stay at the top
         val displayMovies = pinnedMovies + pageMovies
@@ -275,7 +236,7 @@ class HomeFragment : Fragment() {
         val empty = displayMovies.isEmpty()
         tvEmptyFeatured.visibility = if (empty) View.VISIBLE else View.GONE
 
-        val totalPages = if (filtered.isEmpty()) 0 else ceil(filtered.size.toDouble() / pageSize).toInt()
+        val totalPages = if (allLatestMovies.isEmpty()) 0 else ceil(allLatestMovies.size.toDouble() / pageSize).toInt()
         buildPagination(totalPages)
     }
 
