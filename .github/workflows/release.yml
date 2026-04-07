@@ -23,21 +23,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Install Android SDK components
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Decode keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > aamovies.keystore
+          ls -lh aamovies.keystore
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Build all ABI-split release APKs
         env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
           GRADLE_OPTS: "-Xmx3g -XX:MaxMetaspaceSize=512m"
         run: |
-          ./gradlew assembleRelease --max-workers 2 --no-daemon 2>&1
+          ./gradlew assembleRelease --max-workers 2 --no-daemon
 
       - name: Collect APKs
         run: |
@@ -45,8 +49,11 @@ jobs:
           for flavor in armeabi_v7a arm64_v8a x86 x86_64 universal apkpure; do
             src="app/build/outputs/apk/${flavor}/release/app-${flavor}-release.apk"
             if [ -f "$src" ]; then
-              label=$(echo $flavor | sed 's/_v7a/-v7a/; s/_v8a/-v8a/; s/x86_64/x86-64/')
+              label=$(echo $flavor | sed 's/armeabi_v7a/armeabi-v7a/; s/arm64_v8a/arm64-v8a/; s/x86_64/x86-64/')
               cp "$src" "release-apks/AAMovies-${{ github.event.inputs.tag }}-${label}.apk"
+              echo "Collected: release-apks/AAMovies-${{ github.event.inputs.tag }}-${label}.apk"
+            else
+              echo "WARNING: $src not found"
             fi
           done
           ls -lh release-apks/
@@ -55,13 +62,14 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release delete ${{ github.event.inputs.tag }} --yes 2>/dev/null || true
+          gh release delete "${{ github.event.inputs.tag }}" --yes 2>/dev/null || true
+          git push origin --delete "refs/tags/${{ github.event.inputs.tag }}" 2>/dev/null || true
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create ${{ github.event.inputs.tag }} \
+          gh release create "${{ github.event.inputs.tag }}" \
             --title "AAMovies ${{ github.event.inputs.tag }}" \
             --notes "## AAMovies ${{ github.event.inputs.tag }}
 
@@ -76,7 +84,7 @@ jobs:
 
           ### Download
           Pick the APK matching your device:
-          - **arm64-v8a** — most modern Android devices
+          - **arm64-v8a** — most modern Android devices (recommended)
           - **armeabi-v7a** — older 32-bit Android devices
           - **x86** — emulators / Intel 32-bit
           - **x86-64** — Intel 64-bit devices
