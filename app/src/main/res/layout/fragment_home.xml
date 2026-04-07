@@ -60,6 +60,7 @@
 
     <!-- Scrollable content -->
     <ScrollView
+        android:id="@+id/scroll_view_home"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -123,173 +124,6 @@
 
             </LinearLayout>
 
-            <!-- ===== FILTER CHIPS ===== -->
-            <LinearLayout
-                android:id="@+id/ll_filters"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingBottom="8dp">
-
-                <!-- Category row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
-
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="wrap_content"
-                        android:text="Category"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:scrollbars="none"
-                        android:overScrollMode="never">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chip_group_category"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="8dp"
-                            app:singleLine="true"
-                            app:singleSelection="true"
-                            app:selectionRequired="true"
-                            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-                    </HorizontalScrollView>
-                </LinearLayout>
-
-                <!-- Genre row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
-
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="wrap_content"
-                        android:text="Genre"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:scrollbars="none"
-                        android:overScrollMode="never">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chip_group_genre"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="8dp"
-                            app:singleLine="true"
-                            app:singleSelection="true"
-                            app:selectionRequired="true"
-                            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-                    </HorizontalScrollView>
-                </LinearLayout>
-
-                <!-- Language row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
-
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="wrap_content"
-                        android:text="Language"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:scrollbars="none"
-                        android:overScrollMode="never">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chip_group_language"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="8dp"
-                            app:singleLine="true"
-                            app:singleSelection="true"
-                            app:selectionRequired="true"
-                            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-                    </HorizontalScrollView>
-                </LinearLayout>
-
-                <!-- Year row -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:paddingStart="16dp"
-                    android:paddingEnd="8dp"
-                    android:paddingTop="4dp"
-                    android:paddingBottom="4dp">
-
-                    <TextView
-                        android:layout_width="64dp"
-                        android:layout_height="wrap_content"
-                        android:text="Year"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="11sp" />
-
-                    <HorizontalScrollView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:scrollbars="none"
-                        android:overScrollMode="never">
-
-                        <com.google.android.material.chip.ChipGroup
-                            android:id="@+id/chip_group_year"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingStart="4dp"
-                            android:paddingEnd="8dp"
-                            app:singleLine="true"
-                            app:singleSelection="true"
-                            app:selectionRequired="true"
-                            xmlns:app="http://schemas.android.com/apk/res-auto" />
-
-                    </HorizontalScrollView>
-                </LinearLayout>
-
-            </LinearLayout>
-            <!-- ===== END FILTER CHIPS ===== -->
-
             <TextView
                 android:id="@+id/tv_empty_featured"
                 android:layout_width="match_parent"
@@ -328,6 +162,101 @@
                     android:gravity="center_vertical" />
 
             </HorizontalScrollView>
+
+            <!-- ===== BROWSE SECTIONS (below all posters) ===== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="8dp"
+                android:paddingBottom="20dp">
+
+                <!-- 📁 Categories -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📁 Categories"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingStart="16dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="8dp" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:id="@+id/ll_browse_categories"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+
+                </HorizontalScrollView>
+
+                <!-- 🎭 Genres -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🎭 Genres"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="8dp" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:id="@+id/ll_browse_genres"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+
+                </HorizontalScrollView>
+
+                <!-- 📅 Years -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="📅 Years"
+                    android:textColor="@color/text_primary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingStart="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="8dp" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scrollbars="none"
+                    android:overScrollMode="never">
+
+                    <LinearLayout
+                        android:id="@+id/ll_browse_years"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp" />
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+            <!-- ===== END BROWSE SECTIONS ===== -->
 
         </LinearLayout>
     </ScrollView>
