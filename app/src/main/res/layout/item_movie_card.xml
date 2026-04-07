@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
+    android:layout_margin="5dp"
     app:cardBackgroundColor="@color/bg_card"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    app:cardCornerRadius="6dp"
+    app:cardElevation="4dp"
+    app:strokeColor="#00a8ff"
+    app:strokeWidth="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +18,7 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="180dp">
+            android:layout_height="200dp">
 
             <ImageView
                 android:id="@+id/img_movie_poster"
@@ -24,103 +27,119 @@
                 android:scaleType="centerCrop"
                 android:background="@color/bg_surface" />
 
-            <!-- Quality badge (top-right) -->
+            <!-- TOP-LEFT: Rating (★ 8.1) -->
             <TextView
-                android:id="@+id/tv_quality_badge"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|end"
-                android:layout_margin="6dp"
-                android:background="@drawable/bg_badge"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:textColor="@color/white"
-                android:textSize="10sp"
-                android:textStyle="bold" />
-
-            <!-- Pinned badge (top-left) -->
-            <TextView
-                android:id="@+id/tv_pinned_badge"
+                android:id="@+id/tv_tag_rating"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_margin="6dp"
-                android:background="#CC00a8ff"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:text="📌 Pinned"
-                android:textColor="@color/white"
+                android:background="@drawable/bg_tag_rating"
+                android:textColor="#FFD700"
                 android:textSize="9sp"
                 android:textStyle="bold"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
                 android:visibility="gone" />
 
-            <!-- Trending badge (bottom-left) -->
+            <!-- TOP-RIGHT: Quality (HD / 4K) -->
             <TextView
-                android:id="@+id/tv_trending_badge"
+                android:id="@+id/tv_tag_quality"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|end"
+                android:background="@drawable/bg_tag_quality"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:visibility="gone" />
+
+            <!-- BOTTOM-LEFT: Language -->
+            <TextView
+                android:id="@+id/tv_tag_language"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|start"
-                android:layout_margin="6dp"
-                android:background="#CCFF5722"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:text="🔥 Trending"
-                android:textColor="@color/white"
+                android:background="@drawable/bg_tag_language"
+                android:textColor="#FFFFFF"
                 android:textSize="9sp"
                 android:textStyle="bold"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:visibility="gone" />
+
+            <!-- BOTTOM-RIGHT: Type (MOVIE / SERIES) -->
+            <TextView
+                android:id="@+id/tv_tag_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:background="@drawable/bg_tag_type"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:visibility="gone" />
+
+            <!-- PIN badge (center-top) -->
+            <TextView
+                android:id="@+id/tv_pin_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|center_horizontal"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_pin_badge"
+                android:text="📌 Pinned"
+                android:textColor="#FFFFFF"
+                android:textSize="9sp"
+                android:textStyle="bold"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
                 android:visibility="gone" />
 
         </FrameLayout>
 
-        <LinearLayout
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tv_movie_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="10dp">
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="2dp" />
 
-            <TextView
-                android:id="@+id/tv_movie_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/text_primary"
-                android:textSize="13sp"
-                android:textStyle="bold"
-                android:maxLines="2"
-                android:ellipsize="end"
-                android:layout_marginBottom="4dp" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/tv_movie_meta"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp"
-                    android:maxLines="1"
-                    android:ellipsize="end" />
-
-                <!-- Movie/Series type tag -->
-                <TextView
-                    android:id="@+id/tv_type_tag"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_badge"
-                    android:paddingHorizontal="5dp"
-                    android:paddingVertical="1dp"
-                    android:textColor="@color/accent_blue"
-                    android:textSize="9sp"
-                    android:visibility="gone" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <!-- Meta (year · category) shown in grid mode -->
+        <TextView
+            android:id="@+id/tv_movie_meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_secondary"
+            android:textSize="10sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:paddingStart="6dp"
+            android:paddingEnd="6dp"
+            android:paddingBottom="6dp"
+            android:visibility="gone" />
 
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

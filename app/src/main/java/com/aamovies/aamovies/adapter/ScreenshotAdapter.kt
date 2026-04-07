@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.aamovies.aamovies.R
 import com.bumptech.glide.Glide
 
@@ -23,9 +24,13 @@ class ScreenshotAdapter(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val lp = holder.itemView.layoutParams
+        if (lp is StaggeredGridLayoutManager.LayoutParams) {
+            lp.isFullSpan = (screenshots.size == 1)
+        }
         Glide.with(holder.image.context)
             .load(screenshots[position])
-            .centerCrop()
+            .fitCenter()
             .placeholder(R.drawable.placeholder_movie)
             .into(holder.image)
     }

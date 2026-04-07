@@ -5,16 +5,20 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.aamovies.aamovies.adapter.DownloadAdapter
 import com.aamovies.aamovies.adapter.ScreenshotAdapter
 import com.aamovies.aamovies.model.DownloadLink
+import com.aamovies.aamovies.model.GlobalSettings
 import com.aamovies.aamovies.model.Movie
 import com.aamovies.aamovies.util.AdManager
 import com.bumptech.glide.Glide
@@ -38,12 +42,10 @@ class MovieDetailActivity : AppCompatActivity() {
         val movieTitle = intent.getStringExtra("movie_title") ?: "Movie"
         supportActionBar?.title = movieTitle
 
+        val imgBanner = findViewById<ImageView>(R.id.img_banner)
         val imgPoster = findViewById<ImageView>(R.id.img_detail_poster)
+        val llInfoBadges = findViewById<LinearLayout>(R.id.ll_info_badges)
         val tvTitle = findViewById<TextView>(R.id.tv_detail_title)
-        val tvYear = findViewById<TextView>(R.id.tv_detail_year)
-        val tvCategory = findViewById<TextView>(R.id.tv_detail_category)
-        val tvLanguage = findViewById<TextView>(R.id.tv_detail_language)
-        val tvQuality = findViewById<TextView>(R.id.tv_detail_quality)
         val tvDescription = findViewById<TextView>(R.id.tv_detail_description)
         val tvPinnedBadge = findViewById<TextView>(R.id.tv_detail_pinned)
         val tvTrendingBadge = findViewById<TextView>(R.id.tv_detail_trending)
@@ -52,19 +54,41 @@ class MovieDetailActivity : AppCompatActivity() {
         val rvDownloads = findViewById<RecyclerView>(R.id.rv_downloads)
         val sectionScreenshots = findViewById<LinearLayout>(R.id.section_screenshots)
         val sectionDownloads = findViewById<LinearLayout>(R.id.section_downloads)
+        val llSocialButtons = findViewById<LinearLayout>(R.id.ll_social_buttons)
         val btnWatchlist = findViewById<TextView>(R.id.btn_watchlist)
         val btnLike = findViewById<TextView>(R.id.btn_like)
+        val btnTelegram = findViewById<TextView>(R.id.btn_telegram)
+        val btnFacebook = findViewById<TextView>(R.id.btn_facebook)
+        val tvCastEmpty = findViewById<TextView>(R.id.tv_cast_empty)
+        val hsvCast = findViewById<HorizontalScrollView>(R.id.hsv_cast)
+        val llCastChips = findViewById<LinearLayout>(R.id.ll_cast_chips)
 
+        // Load global settings for social buttons
+        FirebaseDatabase.getInstance().getReference("settings/global").get()
+            .addOnSuccessListener { snap ->
+                val settings = snap.getValue(GlobalSettings::class.java) ?: GlobalSettings()
+                val hasTelegram = settings.telegramLink.isNotEmpty()
+                val hasFacebook = settings.facebookLink.isNotEmpty()
+                if (hasTelegram || hasFacebook) {
+                    llSocialButtons.visibility = View.VISIBLE
+                    btnTelegram.visibility = if (hasTelegram) View.VISIBLE else View.GONE
+                    btnFacebook.visibility = if (hasFacebook) View.VISIBLE else View.GONE
+                    btnTelegram.setOnClickListener {
+                        if (settings.telegramLink.isNotEmpty()) openUrl(settings.telegramLink)
+                    }
+                    btnFacebook.setOnClickListener {
+                        if (settings.facebookLink.isNotEmpty()) openUrl(settings.facebookLink)
+                    }
+                }
+            }
+
+        // Load movie data
         val ref = FirebaseDatabase.getInstance().getReference("movies/$movieId")
         ref.get().addOnSuccessListener { snap ->
             val movie = snap.getValue(Movie::class.java) ?: return@addOnSuccessListener
             movie.id = movieId
 
             tvTitle.text = movie.title
-            tvYear.text = movie.year
-            tvCategory.text = movie.category
-            tvLanguage.text = movie.language.ifEmpty { "—" }
-            tvQuality.text = movie.quality.ifEmpty { "HD" }
             tvDescription.text = movie.description
 
             tvPinnedBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
@@ -75,18 +99,42 @@ class MovieDetailActivity : AppCompatActivity() {
                 tvType.visibility = View.VISIBLE
             }
 
+            // Poster
             if (movie.poster.isNotEmpty()) {
                 Glide.with(this).load(movie.poster).centerCrop()
                     .placeholder(R.drawable.placeholder_movie).into(imgPoster)
             }
 
-            // Screenshots
+            // Banner
+            val bannerUrl = movie.horizontalBanner.ifEmpty { movie.poster }
+            if (bannerUrl.isNotEmpty()) {
+                Glide.with(this).load(bannerUrl).centerCrop()
+                    .placeholder(R.drawable.placeholder_movie).into(imgBanner)
+            }
+
+            // Info badges (Language, Genre, Industry, Rating, Quality, Year)
+            addInfoBadge(llInfoBadges, movie.language, "#0d7377")
+            addInfoBadge(llInfoBadges, movie.genre, "#6d28d9")
+            addInfoBadge(llInfoBadges, movie.industry, "#1e3a5f")
+            addInfoBadge(llInfoBadges, movie.rating, "#1a1a2e")
+            addInfoBadge(llInfoBadges, movie.quality, "#003366")
+            addInfoBadge(llInfoBadges, movie.year, "#333333")
+
+            // Star cast chips
+            val castNames = movie.starCast.split(",").map { it.trim() }.filter { it.isNotEmpty() }
+            if (castNames.isNotEmpty()) {
+                hsvCast.visibility = View.VISIBLE
+                castNames.forEach { name -> addCastChip(llCastChips, name) }
+            } else {
+                tvCastEmpty.visibility = View.VISIBLE
+            }
+
+            // Screenshots — 1 image → 1 col, 2+ images → 2-col staggered
             val screenshotUrls = movie.screenshots.values.filter { it.isNotEmpty() }
             if (screenshotUrls.isNotEmpty()) {
                 sectionScreenshots.visibility = View.VISIBLE
-                rvScreenshots.layoutManager = LinearLayoutManager(
-                    this, LinearLayoutManager.HORIZONTAL, false
-                )
+                val spanCount = if (screenshotUrls.size == 1) 1 else 2
+                rvScreenshots.layoutManager = StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL)
                 rvScreenshots.adapter = ScreenshotAdapter(screenshotUrls)
             }
 
@@ -98,13 +146,16 @@ class MovieDetailActivity : AppCompatActivity() {
                 rvDownloads.adapter = DownloadAdapter(dlLinks) { link -> handleDownloadClick(link) }
             }
 
+            // Increment view count
             ref.child("views").get().addOnSuccessListener { v ->
                 ref.child("views").setValue((v.getValue(Long::class.java) ?: 0L) + 1L)
             }
+
         }.addOnFailureListener {
             Toast.makeText(this, "Failed to load movie", Toast.LENGTH_SHORT).show()
         }
 
+        // Watchlist & Like
         val uid = FirebaseAuth.getInstance().currentUser?.uid
         if (uid != null) {
             val userRef = FirebaseDatabase.getInstance().getReference("users/$uid")
@@ -123,9 +174,11 @@ class MovieDetailActivity : AppCompatActivity() {
                     if (snap.exists()) {
                         watchRef.removeValue()
                         btnWatchlist.text = "+ Watchlist"
+                        Toast.makeText(this, "Removed from watchlist", Toast.LENGTH_SHORT).show()
                     } else {
                         watchRef.setValue(true)
                         btnWatchlist.text = "✓ In Watchlist"
+                        Toast.makeText(this, "Added to watchlist", Toast.LENGTH_SHORT).show()
                     }
                 }
             }
@@ -133,14 +186,11 @@ class MovieDetailActivity : AppCompatActivity() {
             btnLike.setOnClickListener {
                 likeRef.get().addOnSuccessListener { snap ->
                     if (snap.exists()) {
-                        // Unlike: remove from liked_movies
                         likeRef.removeValue()
                         btnLike.text = "♡ Like"
                         Toast.makeText(this, "Removed from liked movies", Toast.LENGTH_SHORT).show()
                     } else {
-                        // Like: save movie ID + title to liked_movies
-                        val title = tvTitle.text.toString()
-                        likeRef.setValue(mapOf("title" to title, "likedAt" to System.currentTimeMillis()))
+                        likeRef.setValue(mapOf("title" to movieTitle, "likedAt" to System.currentTimeMillis()))
                         btnLike.text = "♥ Liked"
                         Toast.makeText(this, "Added to liked movies ♥", Toast.LENGTH_SHORT).show()
                     }
@@ -149,6 +199,51 @@ class MovieDetailActivity : AppCompatActivity() {
         } else {
             btnWatchlist.visibility = View.GONE
             btnLike.visibility = View.GONE
+        }
+    }
+
+    private fun addInfoBadge(container: LinearLayout, text: String, colorHex: String) {
+        if (text.isEmpty()) return
+        val tv = TextView(this)
+        tv.text = text
+        tv.textSize = 11f
+        tv.setTextColor(0xFFFFFFFF.toInt())
+        try { tv.setBackgroundColor(android.graphics.Color.parseColor(colorHex)) } catch (_: Exception) {}
+        val dp4 = (4 * resources.displayMetrics.density).toInt()
+        val dp8 = (8 * resources.displayMetrics.density).toInt()
+        tv.setPadding(dp8, dp4, dp8, dp4)
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.bottomMargin = dp4
+        tv.layoutParams = params
+        container.addView(tv)
+    }
+
+    private fun addCastChip(container: LinearLayout, name: String) {
+        val tv = TextView(this)
+        tv.text = name
+        tv.textSize = 12f
+        tv.setTextColor(0xFFFFFFFF.toInt())
+        tv.setBackgroundResource(R.drawable.bg_cast_chip)
+        val dp6 = (6 * resources.displayMetrics.density).toInt()
+        val dp10 = (10 * resources.displayMetrics.density).toInt()
+        tv.setPadding(dp10, dp6, dp10, dp6)
+        val params = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        params.marginEnd = dp6
+        tv.layoutParams = params
+        container.addView(tv)
+    }
+
+    private fun openUrl(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
+            Toast.makeText(this, "Cannot open link", Toast.LENGTH_SHORT).show()
         }
     }
 

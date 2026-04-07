@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/drawer_watchlist"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:title="@string/nav_watchlist" />
+    <item
+        android:id="@+id/drawer_search"
+        android:icon="@android:drawable/ic_menu_search"
+        android:title="@string/nav_search" />
+    <item
+        android:id="@+id/drawer_liked"
+        android:icon="@android:drawable/ic_menu_add"
+        android:title="@string/nav_liked" />
+    <item
+        android:id="@+id/drawer_contact"
+        android:icon="@android:drawable/ic_dialog_email"
+        android:title="@string/nav_contact" />
+</menu>

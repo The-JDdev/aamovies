@@ -5,23 +5,33 @@
     android:orientation="vertical"
     android:background="@color/bg_app">
 
-    <!-- Unified Header Toolbar -->
+    <!-- Header: hamburger | logo | title | overflow -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
         android:background="@color/bg_app"
-        android:paddingStart="14dp"
+        android:paddingStart="8dp"
         android:paddingEnd="8dp"
         android:elevation="4dp">
 
         <ImageView
-            android:layout_width="32dp"
-            android:layout_height="32dp"
+            android:id="@+id/btn_hamburger"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_hamburger"
+            android:scaleType="center"
+            android:padding="8dp"
+            android:contentDescription="Menu" />
+
+        <ImageView
+            android:layout_width="28dp"
+            android:layout_height="28dp"
             android:src="@drawable/logo"
             android:scaleType="fitCenter"
-            android:layout_marginEnd="10dp" />
+            android:layout_marginStart="6dp"
+            android:layout_marginEnd="8dp" />
 
         <TextView
             android:layout_width="0dp"
@@ -43,24 +53,24 @@
 
     </LinearLayout>
 
-    <!-- Thin divider -->
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="#1AFFFFFF" />
 
-    <!-- Scrollable Content -->
+    <!-- Scrollable content -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:overScrollMode="never">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!-- ── TRENDING ── -->
+            <!-- TRENDING NOW -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -70,13 +80,13 @@
                 android:textStyle="bold"
                 android:paddingStart="16dp"
                 android:paddingTop="16dp"
-                android:paddingBottom="12dp" />
+                android:paddingBottom="10dp" />
 
             <TextView
                 android:id="@+id/tv_empty_trending"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No trending movies yet."
+                android:text="No trending items yet."
                 android:textColor="@color/text_secondary"
                 android:paddingHorizontal="16dp"
                 android:visibility="gone"
@@ -85,23 +95,33 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_trending"
                 android:layout_width="match_parent"
-                android:layout_height="240dp"
+                android:layout_height="wrap_content"
                 android:paddingStart="8dp"
                 android:paddingEnd="8dp"
                 android:clipToPadding="false"
                 android:overScrollMode="never"
                 android:layout_marginBottom="16dp" />
 
-            <!-- ── LATEST ── -->
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- LATEST RELEASE -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="🎬 Latest Movies"
-                android:textColor="@color/text_primary"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
                 android:paddingStart="16dp"
-                android:paddingBottom="12dp" />
+                android:paddingEnd="16dp"
+                android:paddingBottom="10dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="🎬 Latest Release"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tv_empty_featured"
@@ -117,81 +137,30 @@
                 android:id="@+id/rv_featured"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="8dp"
+                android:paddingHorizontal="4dp"
                 android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="8dp" />
 
-            <!-- ── Divider ── -->
-            <View
+            <!-- PAGINATION BAR -->
+            <HorizontalScrollView
+                android:id="@+id/hsv_pagination"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#1AFFFFFF"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="4dp" />
-
-            <!-- ── DISCOVER BY CATEGORY ── -->
-            <TextView
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🗂 Categories"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingTop="16dp"
-                android:paddingBottom="8dp" />
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="16dp"
+                android:scrollbars="none"
+                android:visibility="gone">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_filter_categories"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp"
-                android:clipToPadding="false"
-                android:overScrollMode="never" />
+                <LinearLayout
+                    android:id="@+id/ll_pagination"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical" />
 
-            <!-- ── DISCOVER BY GENRE ── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="🎭 Genres"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingTop="14dp"
-                android:paddingBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_filter_genres"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp"
-                android:clipToPadding="false"
-                android:overScrollMode="never" />
-
-            <!-- ── DISCOVER BY YEAR ── -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📅 Years"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:paddingStart="16dp"
-                android:paddingTop="14dp"
-                android:paddingBottom="8dp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_filter_years"
-                android:layout_width="match_parent"
-                android:layout_height="44dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp"
-                android:clipToPadding="false"
-                android:overScrollMode="never"
-                android:layout_marginBottom="24dp" />
+            </HorizontalScrollView>
 
         </LinearLayout>
     </ScrollView>

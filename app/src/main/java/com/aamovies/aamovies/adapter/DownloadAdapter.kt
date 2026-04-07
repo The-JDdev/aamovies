@@ -28,7 +28,8 @@ class DownloadAdapter(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val link = links[position]
-        holder.label.text = link.label.ifEmpty { "Download" }
+        // Show resolution if available, fall back to label
+        holder.label.text = link.resolution.ifEmpty { link.label.ifEmpty { "Download" } }
         holder.size.text = link.size
         holder.size.visibility = if (link.size.isNotEmpty()) View.VISIBLE else View.GONE
         holder.button.setOnClickListener { onDownloadClick(link) }

@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Aamovies</string>
-    <string name="notification_channel_name">Aamovies Notifications</string>
+    <string name="app_name">AAMovies</string>
+    <string name="notification_channel_name">AAMovies Notifications</string>
     <string name="nav_home">Home</string>
     <string name="nav_movies">Movies</string>
+    <string name="nav_trending">Trending</string>
     <string name="nav_search">Search</string>
     <string name="nav_watchlist">Watchlist</string>
     <string name="nav_profile">Profile</string>
+    <string name="nav_liked">Liked Movies</string>
+    <string name="nav_contact">Contact Us</string>
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
     <string name="login_btn">Sign In</string>
@@ -15,11 +18,23 @@
     <string name="login_signup">Create Account</string>
     <string name="trending_title">Trending Now</string>
     <string name="all_movies_title">All Movies</string>
-    <string name="search_hint">Search movies…</string>
+    <string name="search_hint">Search movies, series…</string>
     <string name="watchlist_empty">Your watchlist is empty</string>
     <string name="download_btn_prefix">Download</string>
     <string name="ad_loading">Opening ad, please wait…</string>
     <string name="about_text">AAMovies is your ultimate destination for streaming and downloading movies, web series, and TV shows. We provide high-quality content in multiple languages and formats.</string>
-    <string name="contact_email">support@aamovies.com</string>
+    <string name="contact_email">jdvijay.me@gmail.com</string>
     <string name="contact_telegram">@aamovies_support</string>
+    <string name="btn_telegram">Join us on Telegram</string>
+    <string name="btn_facebook">Join Facebook Group</string>
+    <string name="security_tampered_title">App Integrity Compromised</string>
+    <string name="security_tampered_msg">This app has been modified. Please download the original from the official source.</string>
+    <string name="security_root_title">Rooted Device Detected</string>
+    <string name="security_root_msg">AAMovies cannot run on rooted devices for security reasons.</string>
+    <string name="latest_release">Latest Release</string>
+    <string name="pinned_section">📌 Pinned</string>
+    <string name="synopsis">Synopsis</string>
+    <string name="star_cast">Star Cast</string>
+    <string name="screenshots_label">Screenshots</string>
+    <string name="downloads_label">Download Links</string>
 </resources>

@@ -6,20 +6,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.HorizontalScrollView
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.aamovies.aamovies.FilteredMoviesActivity
 import com.aamovies.aamovies.LikedMoviesActivity
 import com.aamovies.aamovies.LoginActivity
+import com.aamovies.aamovies.MainActivity
 import com.aamovies.aamovies.MovieDetailActivity
 import com.aamovies.aamovies.R
-import com.aamovies.aamovies.adapter.ChipAdapter
 import com.aamovies.aamovies.adapter.MovieAdapter
 import com.aamovies.aamovies.model.Movie
 import com.aamovies.aamovies.util.AdManager
@@ -28,16 +30,23 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlin.math.ceil
+import kotlin.math.min
 
 class HomeFragment : Fragment() {
 
+    private val pageSize = 32
+    private var currentPage = 0
+    private var allLatestMovies: List<Movie> = emptyList()
+    private var pinnedMovies: List<Movie> = emptyList()
+
     private lateinit var rvTrending: RecyclerView
     private lateinit var rvFeatured: RecyclerView
-    private lateinit var rvCategories: RecyclerView
-    private lateinit var rvGenres: RecyclerView
-    private lateinit var rvYears: RecyclerView
     private lateinit var tvEmptyTrending: TextView
     private lateinit var tvEmptyFeatured: TextView
+    private lateinit var hsvPagination: HorizontalScrollView
+    private lateinit var llPagination: LinearLayout
+
     private var trendingAdapter: MovieAdapter? = null
     private var featuredAdapter: MovieAdapter? = null
 
@@ -50,28 +59,31 @@ class HomeFragment : Fragment() {
 
         rvTrending = view.findViewById(R.id.rv_trending)
         rvFeatured = view.findViewById(R.id.rv_featured)
-        rvCategories = view.findViewById(R.id.rv_filter_categories)
-        rvGenres = view.findViewById(R.id.rv_filter_genres)
-        rvYears = view.findViewById(R.id.rv_filter_years)
         tvEmptyTrending = view.findViewById(R.id.tv_empty_trending)
         tvEmptyFeatured = view.findViewById(R.id.tv_empty_featured)
+        hsvPagination = view.findViewById(R.id.hsv_pagination)
+        llPagination = view.findViewById(R.id.ll_pagination)
+
+        val btnHamburger = view.findViewById<ImageView>(R.id.btn_hamburger)
         val btnOverflow = view.findViewById<ImageView>(R.id.btn_overflow_menu)
 
         rvTrending.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         rvFeatured.layoutManager = GridLayoutManager(requireContext(), 2)
-        rvCategories.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvGenres.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        rvYears.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        rvFeatured.isNestedScrollingEnabled = false
 
-        trendingAdapter = MovieAdapter(emptyList(), isHorizontal = true) { movie -> handleMovieCardClick(movie) }
-        featuredAdapter = MovieAdapter(emptyList(), isHorizontal = false) { movie -> handleMovieCardClick(movie) }
+        trendingAdapter = MovieAdapter(emptyList(), isHorizontal = true, showTags = false) { movie ->
+            handleMovieCardClick(movie)
+        }
+        featuredAdapter = MovieAdapter(emptyList(), isHorizontal = false, showTags = true) { movie ->
+            handleMovieCardClick(movie)
+        }
         rvTrending.adapter = trendingAdapter
         rvFeatured.adapter = featuredAdapter
 
+        btnHamburger.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
         btnOverflow.setOnClickListener { v -> showOverflowMenu(v) }
 
         loadMovies()
-        loadFilters()
     }
 
     override fun onResume() {
@@ -94,17 +106,9 @@ class HomeFragment : Fragment() {
         })
     }
 
-    private fun openFilter(filterType: String, value: String) {
-        startActivity(Intent(requireContext(), FilteredMoviesActivity::class.java).apply {
-            putExtra(FilteredMoviesActivity.EXTRA_FILTER_TYPE, filterType)
-            putExtra(FilteredMoviesActivity.EXTRA_FILTER_VALUE, value)
-        })
-    }
-
     private fun loadMovies() {
         FirebaseDatabase.getInstance().getReference("movies")
             .orderByChild("createdAt")
-            .limitToLast(50)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (!isAdded) return
@@ -112,80 +116,111 @@ class HomeFragment : Fragment() {
                     snapshot.children.forEach { child ->
                         val movie = child.getValue(Movie::class.java) ?: return@forEach
                         movie.id = child.key ?: return@forEach
-                        all.add(movie)
+                        if (!movie.upcoming) all.add(movie)
                     }
-                    val sorted = all.sortedWith(
-                        compareByDescending<Movie> { it.pinned }
-                            .thenByDescending { it.trending }
-                            .thenByDescending { it.createdAt }
-                    )
-                    val trendingList = sorted.filter { it.trending || it.pinned }.take(15)
-                    val featuredList = sorted.take(20)
+
+                    // Trending: LIFO — sort by trendingOrder DESC, take 15
+                    val trendingList = all
+                        .filter { it.trending }
+                        .sortedByDescending { it.trendingOrder.takeIf { o -> o > 0 } ?: it.createdAt }
+                        .take(15)
+
+                    // Pinned: LIFO — sort by pinnedOrder DESC
+                    pinnedMovies = all
+                        .filter { it.pinned }
+                        .sortedByDescending { it.pinnedOrder.takeIf { o -> o > 0 } ?: it.createdAt }
+
+                    // Latest: non-pinned, sort by createdAt DESC
+                    allLatestMovies = all
+                        .filter { !it.pinned }
+                        .sortedByDescending { it.createdAt }
+
                     trendingAdapter?.updateMovies(trendingList)
-                    featuredAdapter?.updateMovies(featuredList)
                     tvEmptyTrending.visibility = if (trendingList.isEmpty()) View.VISIBLE else View.GONE
-                    tvEmptyFeatured.visibility = if (featuredList.isEmpty()) View.VISIBLE else View.GONE
+
+                    currentPage = 0
+                    refreshGrid()
                 }
                 override fun onCancelled(error: DatabaseError) {}
             })
     }
 
-    private fun loadFilters() {
+    private fun refreshGrid() {
         if (!isAdded) return
+        val start = currentPage * pageSize
+        val end = min(start + pageSize, allLatestMovies.size)
+        val pageMovies = if (start < allLatestMovies.size) allLatestMovies.subList(start, end) else emptyList()
+        val displayMovies = pinnedMovies + pageMovies
+        featuredAdapter?.updateMovies(displayMovies)
 
-        // Load categories from /categories node
-        FirebaseDatabase.getInstance().getReference("categories")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!isAdded) return
-                    val cats = mutableListOf<String>()
-                    snapshot.children.forEach { child ->
-                        val name = child.child("name").getValue(String::class.java)
-                        if (!name.isNullOrEmpty()) cats.add(name)
-                    }
-                    if (cats.isNotEmpty()) {
-                        rvCategories.adapter = ChipAdapter(cats) { cat ->
-                            openFilter(FilteredMoviesActivity.TYPE_CATEGORY, cat)
-                        }
+        val empty = displayMovies.isEmpty()
+        tvEmptyFeatured.visibility = if (empty) View.VISIBLE else View.GONE
+
+        val totalPages = if (allLatestMovies.isEmpty()) 0 else ceil(allLatestMovies.size.toDouble() / pageSize).toInt()
+        buildPagination(totalPages)
+    }
+
+    private fun buildPagination(totalPages: Int) {
+        if (!isAdded) return
+        llPagination.removeAllViews()
+        if (totalPages <= 1) {
+            hsvPagination.visibility = View.GONE
+            return
+        }
+        hsvPagination.visibility = View.VISIBLE
+
+        val pages = buildPageList(totalPages, currentPage + 1)
+        val density = resources.displayMetrics.density
+
+        pages.forEach { page ->
+            if (page == -1) {
+                val dots = TextView(requireContext()).apply {
+                    text = "…"
+                    setTextColor(0xFFAAAAAA.toInt())
+                    textSize = 14f
+                    setPadding((6 * density).toInt(), (8 * density).toInt(), (6 * density).toInt(), (8 * density).toInt())
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).also { it.setMargins((2 * density).toInt(), 0, (2 * density).toInt(), 0) }
+                }
+                llPagination.addView(dots)
+            } else {
+                val isActive = page == (currentPage + 1)
+                val tv = TextView(requireContext()).apply {
+                    text = page.toString()
+                    textSize = 13f
+                    setTextColor(if (isActive) 0xFF000000.toInt() else 0xFF00a8ff.toInt())
+                    setBackgroundResource(if (isActive) R.drawable.bg_pagination_active else R.drawable.bg_pagination_inactive)
+                    setPadding((14 * density).toInt(), (8 * density).toInt(), (14 * density).toInt(), (8 * density).toInt())
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).also { it.setMargins((3 * density).toInt(), 0, (3 * density).toInt(), 0) }
+                    setOnClickListener {
+                        currentPage = page - 1
+                        refreshGrid()
+                        hsvPagination.post { hsvPagination.scrollTo(0, 0) }
                     }
                 }
-                override fun onCancelled(error: DatabaseError) {}
-            })
+                llPagination.addView(tv)
+            }
+        }
+    }
 
-        // Load genres and years from movies
-        FirebaseDatabase.getInstance().getReference("movies")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (!isAdded) return
-                    val genres = mutableSetOf<String>()
-                    val years = mutableSetOf<String>()
-                    snapshot.children.forEach { child ->
-                        val genre = child.child("genre").getValue(String::class.java) ?: ""
-                        val year = child.child("year").getValue(String::class.java) ?: ""
-                        if (genre.isNotEmpty()) {
-                            genre.split(",").forEach { g ->
-                                val trimmed = g.trim()
-                                if (trimmed.isNotEmpty()) genres.add(trimmed)
-                            }
-                        }
-                        if (year.isNotEmpty()) years.add(year)
-                    }
-                    val sortedGenres = genres.sorted()
-                    val sortedYears = years.sortedDescending()
-
-                    if (sortedGenres.isNotEmpty()) {
-                        rvGenres.adapter = ChipAdapter(sortedGenres) { genre ->
-                            openFilter(FilteredMoviesActivity.TYPE_GENRE, genre)
-                        }
-                    }
-                    if (sortedYears.isNotEmpty()) {
-                        rvYears.adapter = ChipAdapter(sortedYears) { year ->
-                            openFilter(FilteredMoviesActivity.TYPE_YEAR, year)
-                        }
-                    }
-                }
-                override fun onCancelled(error: DatabaseError) {}
-            })
+    private fun buildPageList(total: Int, current: Int): List<Int> {
+        if (total <= 8) return (1..total).toList()
+        val pages = mutableListOf<Int>()
+        // Always show first 2 and last 2
+        val surrounding = (maxOf(1, current - 1)..minOf(total, current + 1)).toList()
+        val allVisible = (listOf(1, 2) + surrounding + listOf(total - 1, total)).distinct().sorted()
+        var prev = 0
+        for (p in allVisible) {
+            if (p - prev > 1) pages.add(-1)
+            pages.add(p)
+            prev = p
+        }
+        return pages
     }
 
     private fun showOverflowMenu(anchor: View) {
@@ -194,8 +229,7 @@ class HomeFragment : Fragment() {
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.menu_liked -> {
-                    startActivity(Intent(requireContext(), LikedMoviesActivity::class.java))
-                    true
+                    startActivity(Intent(requireContext(), LikedMoviesActivity::class.java)); true
                 }
                 R.id.menu_contact -> {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -203,27 +237,20 @@ class HomeFragment : Fragment() {
                         putExtra(Intent.EXTRA_EMAIL, arrayOf("jdvijay.me@gmail.com"))
                         putExtra(Intent.EXTRA_SUBJECT, "Support: AAMovies 2.0")
                     }
-                    if (intent.resolveActivity(requireContext().packageManager) != null) {
-                        startActivity(intent)
-                    } else {
-                        Toast.makeText(requireContext(), "No email app found", Toast.LENGTH_SHORT).show()
-                    }
+                    if (intent.resolveActivity(requireContext().packageManager) != null) startActivity(intent)
+                    else Toast.makeText(requireContext(), "No email app found", Toast.LENGTH_SHORT).show()
                     true
                 }
                 R.id.menu_profile -> {
                     parentFragmentManager.beginTransaction()
                         .replace(R.id.fragment_container, ProfileFragment())
-                        .addToBackStack(null)
-                        .commit()
-                    true
+                        .addToBackStack(null).commit(); true
                 }
                 R.id.menu_signout -> {
                     FirebaseAuth.getInstance().signOut()
-                    Toast.makeText(requireContext(), "Signed out", Toast.LENGTH_SHORT).show()
                     val intent = Intent(requireContext(), LoginActivity::class.java)
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    startActivity(intent)
-                    true
+                    startActivity(intent); true
                 }
                 else -> false
             }

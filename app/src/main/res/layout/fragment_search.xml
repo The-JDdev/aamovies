@@ -11,14 +11,62 @@
         android:layout_width="match_parent"
         android:layout_height="52dp"
         android:background="@drawable/bg_input_field"
-        android:hint="Search movies…"
+        android:hint="@string/search_hint"
         android:textColorHint="@color/text_hint"
         android:textColor="@color/text_primary"
         android:inputType="text"
         android:padding="14dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="10dp"
         android:drawableStart="@android:drawable/ic_menu_search"
         android:drawablePadding="8dp" />
+
+    <!-- Type filter chips -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/chip_all"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="All"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_pagination_active"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/chip_movie"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Movie"
+            android:gravity="center"
+            android:textColor="@color/accent_blue"
+            android:textSize="13sp"
+            android:background="@drawable/bg_pagination_inactive"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/chip_series"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Series"
+            android:gravity="center"
+            android:textColor="@color/accent_blue"
+            android:textSize="13sp"
+            android:background="@drawable/bg_pagination_inactive"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp" />
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/tv_search_empty"

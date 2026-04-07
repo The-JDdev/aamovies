@@ -20,6 +20,12 @@ data class Movie(
     @get:PropertyName("genre") @set:PropertyName("genre") var genre: String = "",
     @get:PropertyName("upcoming") @set:PropertyName("upcoming") var upcoming: Boolean = false,
     @get:PropertyName("featured") @set:PropertyName("featured") var featured: Boolean = false,
+    @get:PropertyName("horizontalBanner") @set:PropertyName("horizontalBanner") var horizontalBanner: String = "",
+    @get:PropertyName("industry") @set:PropertyName("industry") var industry: String = "",
+    @get:PropertyName("rating") @set:PropertyName("rating") var rating: String = "",
+    @get:PropertyName("starCast") @set:PropertyName("starCast") var starCast: String = "",
+    @get:PropertyName("trendingOrder") @set:PropertyName("trendingOrder") var trendingOrder: Long = 0L,
+    @get:PropertyName("pinnedOrder") @set:PropertyName("pinnedOrder") var pinnedOrder: Long = 0L,
     @get:PropertyName("screenshots") @set:PropertyName("screenshots")
     var screenshots: Map<String, String> = emptyMap(),
     @get:PropertyName("downloadLinks") @set:PropertyName("downloadLinks")
@@ -29,6 +35,13 @@ data class Movie(
 @IgnoreExtraProperties
 data class DownloadLink(
     @get:PropertyName("label") @set:PropertyName("label") var label: String = "",
+    @get:PropertyName("resolution") @set:PropertyName("resolution") var resolution: String = "",
     @get:PropertyName("url") @set:PropertyName("url") var url: String = "",
     @get:PropertyName("size") @set:PropertyName("size") var size: String = ""
+)
+
+@IgnoreExtraProperties
+data class GlobalSettings(
+    @get:PropertyName("telegramLink") @set:PropertyName("telegramLink") var telegramLink: String = "",
+    @get:PropertyName("facebookLink") @set:PropertyName("facebookLink") var facebookLink: String = ""
 )

@@ -1,28 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg_app">
+    android:background="@color/bg_app"
+    android:overScrollMode="never">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/img_detail_poster"
+        <!-- ===== HEADER: Banner + Poster overlay + Info badges ===== -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            android:background="@color/bg_card" />
+            android:layout_height="260dp">
 
+            <!-- Banner image (covers top 200dp) -->
+            <ImageView
+                android:id="@+id/img_banner"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:background="@color/bg_card"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Dark gradient overlay at bottom of banner -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="110dp"
+                android:background="@drawable/bg_gradient_dark_bottom"
+                app:layout_constraintBottom_toBottomOf="@id/img_banner"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- App-color fill for the 60dp below the banner -->
+            <View
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:background="@color/bg_app"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <!-- Poster (starts 35dp from top, 165dp tall → bottom flush with banner) -->
+            <ImageView
+                android:id="@+id/img_detail_poster"
+                android:layout_width="110dp"
+                android:layout_height="165dp"
+                android:scaleType="centerCrop"
+                android:background="@color/bg_surface"
+                android:elevation="6dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <!-- Info badges column (right of poster, starting at 110dp from top) -->
+            <LinearLayout
+                android:id="@+id/ll_info_badges"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginTop="110dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="16dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/img_detail_poster"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <!-- ===== CONTENT ===== -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp">
 
-            <!-- Title row -->
+            <!-- Title -->
             <TextView
                 android:id="@+id/tv_detail_title"
                 android:layout_width="match_parent"
@@ -32,24 +92,24 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp" />
 
-            <!-- Badges row: Pinned, Trending, Type -->
+            <!-- Type + Trending + Pinned badges row -->
             <LinearLayout
-                android:id="@+id/row_badges"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="8dp">
+                android:layout_marginBottom="12dp">
 
                 <TextView
-                    android:id="@+id/tv_detail_pinned"
+                    android:id="@+id/tv_detail_type"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📌 Pinned"
-                    android:textColor="@color/white"
-                    android:background="#CC00a8ff"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
+                    android:background="@drawable/bg_tag_type"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
                     android:layout_marginEnd="6dp"
                     android:visibility="gone" />
 
@@ -58,71 +118,33 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="🔥 Trending"
-                    android:textColor="@color/white"
-                    android:background="#CCFF5722"
+                    android:textColor="#FFCC00"
                     android:textSize="11sp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
+                    android:background="@drawable/bg_tag_rating"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
                     android:layout_marginEnd="6dp"
                     android:visibility="gone" />
 
                 <TextView
-                    android:id="@+id/tv_detail_type"
+                    android:id="@+id/tv_detail_pinned"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/accent_blue"
-                    android:background="@drawable/bg_badge"
+                    android:text="📌 Pinned"
+                    android:textColor="@color/text_primary"
                     android:textSize="11sp"
-                    android:paddingHorizontal="8dp"
-                    android:paddingVertical="3dp"
+                    android:background="@drawable/bg_pin_badge"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="3dp"
+                    android:paddingBottom="3dp"
                     android:visibility="gone" />
 
             </LinearLayout>
 
-            <!-- Meta row: year, category, language, quality -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:id="@+id/tv_detail_year"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginEnd="12dp" />
-
-                <TextView
-                    android:id="@+id/tv_detail_category"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/accent_blue"
-                    android:textSize="13sp"
-                    android:layout_marginEnd="12dp" />
-
-                <TextView
-                    android:id="@+id/tv_detail_language"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="13sp"
-                    android:layout_marginEnd="12dp" />
-
-                <TextView
-                    android:id="@+id/tv_detail_quality"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/text_primary"
-                    android:background="@drawable/bg_badge"
-                    android:textSize="11sp"
-                    android:paddingHorizontal="6dp"
-                    android:paddingVertical="2dp" />
-
-            </LinearLayout>
-
-            <!-- Watchlist / Like buttons -->
+            <!-- Watchlist + Like buttons -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -132,29 +154,74 @@
                 <TextView
                     android:id="@+id/btn_watchlist"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="+ Watchlist"
                     android:textColor="@color/accent_blue"
-                    android:background="@drawable/bg_button_outline"
                     android:textSize="13sp"
+                    android:background="@drawable/bg_button_outline"
                     android:layout_marginEnd="8dp" />
 
                 <TextView
                     android:id="@+id/btn_like"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="42dp"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="♡ Like"
                     android:textColor="@color/accent_red"
-                    android:background="@drawable/bg_button_outline"
-                    android:textSize="13sp" />
+                    android:textSize="13sp"
+                    android:background="@drawable/bg_button_outline" />
 
             </LinearLayout>
 
-            <!-- Description -->
+            <!-- Star Cast -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⭐ Star Cast"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tv_cast_empty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cast information not available."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp" />
+
+            <HorizontalScrollView
+                android:id="@+id/hsv_cast"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/ll_cast_chips"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+
+            </HorizontalScrollView>
+
+            <!-- Synopsis -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Synopsis"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
             <TextView
                 android:id="@+id/tv_detail_description"
                 android:layout_width="match_parent"
@@ -162,7 +229,7 @@
                 android:textColor="@color/text_secondary"
                 android:textSize="14sp"
                 android:lineSpacingExtra="4dp"
-                android:layout_marginBottom="24dp" />
+                android:layout_marginBottom="8dp" />
 
         </LinearLayout>
 
@@ -172,24 +239,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone"
-            android:paddingHorizontal="16dp"
-            android:layout_marginBottom="16dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Screenshots"
+                android:text="📸 Screenshots"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="10dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_screenshots"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" />
+                android:nestedScrollingEnabled="false" />
 
         </LinearLayout>
 
@@ -199,24 +268,65 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone"
-            android:paddingHorizontal="16dp"
-            android:paddingBottom="32dp">
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Download"
+                android:text="⬇ Download"
                 android:textColor="@color/text_primary"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="10dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_downloads"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:nestedScrollingEnabled="false" />
+
+        </LinearLayout>
+
+        <!-- Social buttons -->
+        <LinearLayout
+            android:id="@+id/ll_social_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="32dp"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/btn_telegram"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="✈ Telegram"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_social_telegram"
+                android:layout_marginEnd="8dp" />
+
+            <TextView
+                android:id="@+id/btn_facebook"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="f Facebook"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_social_facebook" />
 
         </LinearLayout>
 

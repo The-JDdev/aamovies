@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide
 class MovieAdapter(
     private var movies: List<Movie>,
     private val isHorizontal: Boolean = false,
+    private val showTags: Boolean = true,
     private val onMovieClick: (Movie) -> Unit
 ) : RecyclerView.Adapter<MovieAdapter.ViewHolder>() {
 
@@ -20,10 +21,11 @@ class MovieAdapter(
         val poster: ImageView = itemView.findViewById(R.id.img_movie_poster)
         val title: TextView = itemView.findViewById(R.id.tv_movie_title)
         val meta: TextView = itemView.findViewById(R.id.tv_movie_meta)
-        val badge: TextView = itemView.findViewById(R.id.tv_quality_badge)
-        val pinnedBadge: TextView = itemView.findViewById(R.id.tv_pinned_badge)
-        val trendingBadge: TextView = itemView.findViewById(R.id.tv_trending_badge)
-        val typeTag: TextView = itemView.findViewById(R.id.tv_type_tag)
+        val tagRating: TextView = itemView.findViewById(R.id.tv_tag_rating)
+        val tagQuality: TextView = itemView.findViewById(R.id.tv_tag_quality)
+        val tagLanguage: TextView = itemView.findViewById(R.id.tv_tag_language)
+        val tagType: TextView = itemView.findViewById(R.id.tv_tag_type)
+        val pinBadge: TextView = itemView.findViewById(R.id.tv_pin_badge)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -31,36 +33,79 @@ class MovieAdapter(
             .inflate(R.layout.item_movie_card, parent, false)
         if (isHorizontal) {
             val widthPx = (140 * parent.context.resources.displayMetrics.density).toInt()
-            view.layoutParams = ViewGroup.MarginLayoutParams(widthPx, ViewGroup.LayoutParams.WRAP_CONTENT).also {
-                it.setMargins(6, 6, 6, 6)
-            }
+            view.layoutParams = ViewGroup.MarginLayoutParams(
+                widthPx, ViewGroup.LayoutParams.WRAP_CONTENT
+            ).also { it.setMargins(5, 5, 5, 5) }
         }
         return ViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val movie = movies[position]
+
         holder.title.text = movie.title
-        holder.meta.text = buildString {
-            if (movie.year.isNotEmpty()) append(movie.year)
-            if (movie.category.isNotEmpty()) {
-                if (isNotEmpty()) append(" · ")
-                append(movie.category)
+
+        // Meta row (year · category) — show only in full-card grid
+        if (!isHorizontal && showTags) {
+            val meta = buildString {
+                if (movie.year.isNotEmpty()) append(movie.year)
+                if (movie.category.isNotEmpty()) {
+                    if (isNotEmpty()) append(" · ")
+                    append(movie.category)
+                }
             }
-        }
-        holder.badge.text = movie.quality.ifEmpty { "HD" }
-        holder.badge.visibility = View.VISIBLE
-
-        holder.pinnedBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
-        holder.trendingBadge.visibility = if (movie.trending && !movie.pinned) View.VISIBLE else View.GONE
-
-        if (movie.type == "Series") {
-            holder.typeTag.text = "Series"
-            holder.typeTag.visibility = View.VISIBLE
+            if (meta.isNotEmpty()) {
+                holder.meta.text = meta
+                holder.meta.visibility = View.VISIBLE
+            } else {
+                holder.meta.visibility = View.GONE
+            }
         } else {
-            holder.typeTag.visibility = View.GONE
+            holder.meta.visibility = View.GONE
         }
 
+        // Overlay tags — shown only in grid modes (not horizontal trending)
+        val displayTags = showTags && !isHorizontal
+        if (displayTags) {
+            // Rating tag
+            if (movie.rating.isNotEmpty()) {
+                holder.tagRating.text = "★ ${movie.rating}"
+                holder.tagRating.visibility = View.VISIBLE
+            } else {
+                holder.tagRating.visibility = View.GONE
+            }
+            // Quality tag
+            if (movie.quality.isNotEmpty()) {
+                holder.tagQuality.text = movie.quality.uppercase()
+                holder.tagQuality.visibility = View.VISIBLE
+            } else {
+                holder.tagQuality.visibility = View.GONE
+            }
+            // Language tag
+            if (movie.language.isNotEmpty()) {
+                holder.tagLanguage.text = movie.language.uppercase()
+                holder.tagLanguage.visibility = View.VISIBLE
+            } else {
+                holder.tagLanguage.visibility = View.GONE
+            }
+            // Type tag
+            if (movie.type.isNotEmpty()) {
+                holder.tagType.text = movie.type.uppercase()
+                holder.tagType.visibility = View.VISIBLE
+            } else {
+                holder.tagType.visibility = View.GONE
+            }
+        } else {
+            holder.tagRating.visibility = View.GONE
+            holder.tagQuality.visibility = View.GONE
+            holder.tagLanguage.visibility = View.GONE
+            holder.tagType.visibility = View.GONE
+        }
+
+        // Pinned badge
+        holder.pinBadge.visibility = if (movie.pinned) View.VISIBLE else View.GONE
+
+        // Load poster
         if (movie.poster.isNotEmpty()) {
             Glide.with(holder.poster.context)
                 .load(movie.poster)

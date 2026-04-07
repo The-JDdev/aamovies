@@ -5,13 +5,13 @@
         android:icon="@android:drawable/ic_menu_compass"
         android:title="@string/nav_home" />
     <item
-        android:id="@+id/nav_movies"
-        android:icon="@android:drawable/ic_menu_slideshow"
-        android:title="@string/nav_movies" />
-    <item
         android:id="@+id/nav_search"
         android:icon="@android:drawable/ic_menu_search"
         android:title="@string/nav_search" />
+    <item
+        android:id="@+id/nav_trending"
+        android:icon="@drawable/ic_trending_nav"
+        android:title="@string/nav_trending" />
     <item
         android:id="@+id/nav_watchlist"
         android:icon="@android:drawable/ic_menu_agenda"
