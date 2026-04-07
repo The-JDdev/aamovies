@@ -2,7 +2,7 @@
 
 
 
-# 🎬 AAMovies 2.0 (v6.0 → v6.3) 🎬
+# 🎬 AAMovies 2.0 (v6.0 → v7.1) 🎬
 
 ### *The Ultimate Native Cinematic Universe*
 
