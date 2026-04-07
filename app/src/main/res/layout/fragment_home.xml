@@ -102,7 +102,7 @@
                 android:overScrollMode="never"
                 android:layout_marginBottom="16dp" />
 
-            <!-- LATEST RELEASE -->
+            <!-- LATEST RELEASE header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +110,7 @@
                 android:gravity="center_vertical"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:paddingBottom="10dp">
+                android:paddingBottom="12dp">
 
                 <TextView
                     android:layout_width="0dp"
@@ -122,6 +122,173 @@
                     android:textStyle="bold" />
 
             </LinearLayout>
+
+            <!-- ===== FILTER CHIPS ===== -->
+            <LinearLayout
+                android:id="@+id/ll_filters"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="8dp">
+
+                <!-- Category row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:text="Category"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:overScrollMode="never">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group_category"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="8dp"
+                            app:singleLine="true"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- Genre row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:text="Genre"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:overScrollMode="never">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group_genre"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="8dp"
+                            app:singleLine="true"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- Language row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:text="Language"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:overScrollMode="never">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group_language"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="8dp"
+                            app:singleLine="true"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <!-- Year row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="8dp"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+                    <TextView
+                        android:layout_width="64dp"
+                        android:layout_height="wrap_content"
+                        android:text="Year"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+
+                    <HorizontalScrollView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:scrollbars="none"
+                        android:overScrollMode="never">
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chip_group_year"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:paddingStart="4dp"
+                            android:paddingEnd="8dp"
+                            app:singleLine="true"
+                            app:singleSelection="true"
+                            app:selectionRequired="true"
+                            xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+            </LinearLayout>
+            <!-- ===== END FILTER CHIPS ===== -->
 
             <TextView
                 android:id="@+id/tv_empty_featured"

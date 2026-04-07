@@ -1,6 +1,7 @@
 package com.aamovies.aamovies.fragment
 
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -25,6 +26,8 @@ import com.aamovies.aamovies.R
 import com.aamovies.aamovies.adapter.MovieAdapter
 import com.aamovies.aamovies.model.Movie
 import com.aamovies.aamovies.util.AdManager
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -40,6 +43,12 @@ class HomeFragment : Fragment() {
     private var allLatestMovies: List<Movie> = emptyList()
     private var pinnedMovies: List<Movie> = emptyList()
 
+    // Filter state (null = "All" / no filter)
+    private var selectedCategory: String? = null
+    private var selectedGenre: String? = null
+    private var selectedLanguage: String? = null
+    private var selectedYear: String? = null
+
     private lateinit var rvTrending: RecyclerView
     private lateinit var rvFeatured: RecyclerView
     private lateinit var tvEmptyTrending: TextView
@@ -47,8 +56,16 @@ class HomeFragment : Fragment() {
     private lateinit var hsvPagination: HorizontalScrollView
     private lateinit var llPagination: LinearLayout
 
+    private lateinit var chipGroupCategory: ChipGroup
+    private lateinit var chipGroupGenre: ChipGroup
+    private lateinit var chipGroupLanguage: ChipGroup
+    private lateinit var chipGroupYear: ChipGroup
+
     private var trendingAdapter: MovieAdapter? = null
     private var featuredAdapter: MovieAdapter? = null
+
+    // Guard flag to prevent chip listener loops while rebuilding chips
+    private var suppressChipListeners = false
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return inflater.inflate(R.layout.fragment_home, container, false)
@@ -63,6 +80,11 @@ class HomeFragment : Fragment() {
         tvEmptyFeatured = view.findViewById(R.id.tv_empty_featured)
         hsvPagination = view.findViewById(R.id.hsv_pagination)
         llPagination = view.findViewById(R.id.ll_pagination)
+
+        chipGroupCategory = view.findViewById(R.id.chip_group_category)
+        chipGroupGenre = view.findViewById(R.id.chip_group_genre)
+        chipGroupLanguage = view.findViewById(R.id.chip_group_language)
+        chipGroupYear = view.findViewById(R.id.chip_group_year)
 
         val btnHamburger = view.findViewById<ImageView>(R.id.btn_hamburger)
         val btnOverflow = view.findViewById<ImageView>(R.id.btn_overflow_menu)
@@ -82,6 +104,17 @@ class HomeFragment : Fragment() {
 
         btnHamburger.setOnClickListener { (activity as? MainActivity)?.openDrawer() }
         btnOverflow.setOnClickListener { v -> showOverflowMenu(v) }
+
+        // Build static Category chips ("All", "Movie", "Series")
+        buildChipGroup(
+            group = chipGroupCategory,
+            options = listOf("Movie", "Series"),
+            selected = selectedCategory
+        ) { value ->
+            selectedCategory = value
+            currentPage = 0
+            refreshGrid()
+        }
 
         loadMovies()
     }
@@ -138,6 +171,9 @@ class HomeFragment : Fragment() {
                     trendingAdapter?.updateMovies(trendingList)
                     tvEmptyTrending.visibility = if (trendingList.isEmpty()) View.VISIBLE else View.GONE
 
+                    // Populate dynamic filter chips based on available data
+                    populateDynamicFilterChips(allLatestMovies)
+
                     currentPage = 0
                     refreshGrid()
                 }
@@ -145,18 +181,164 @@ class HomeFragment : Fragment() {
             })
     }
 
+    /**
+     * Build Genre, Language and Year chips dynamically from the full movie list.
+     * Resets current filter selections if data changes make them invalid.
+     */
+    private fun populateDynamicFilterChips(movies: List<Movie>) {
+        if (!isAdded) return
+
+        val genres = movies
+            .flatMap { it.genre.split(",").map { g -> g.trim() } }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .sorted()
+
+        val languages = movies
+            .flatMap { it.language.split(",").map { l -> l.trim() } }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .sorted()
+
+        val years = movies
+            .mapNotNull { if (it.year.isNotEmpty() && it.year != "0") it.year else null }
+            .distinct()
+            .sortedDescending()
+
+        // If previously selected value no longer exists in data, reset to null ("All")
+        if (selectedGenre != null && selectedGenre !in genres) selectedGenre = null
+        if (selectedLanguage != null && selectedLanguage !in languages) selectedLanguage = null
+        if (selectedYear != null && selectedYear !in years) selectedYear = null
+
+        buildChipGroup(chipGroupGenre, genres, selectedGenre) { value ->
+            selectedGenre = value
+            currentPage = 0
+            refreshGrid()
+        }
+
+        buildChipGroup(chipGroupLanguage, languages, selectedLanguage) { value ->
+            selectedLanguage = value
+            currentPage = 0
+            refreshGrid()
+        }
+
+        buildChipGroup(chipGroupYear, years, selectedYear) { value ->
+            selectedYear = value
+            currentPage = 0
+            refreshGrid()
+        }
+    }
+
+    /**
+     * Removes all chips from the group and repopulates with "All" + the given options.
+     * The chip matching [selected] (or "All" if selected is null) starts checked.
+     * [onSelect] receives null when "All" is chosen, or the option string otherwise.
+     */
+    private fun buildChipGroup(
+        group: ChipGroup,
+        options: List<String>,
+        selected: String?,
+        onSelect: (String?) -> Unit
+    ) {
+        suppressChipListeners = true
+        group.removeAllViews()
+
+        val allOptions = listOf(null as String?) + options.map { it as String? }
+        allOptions.forEach { option ->
+            val label = option ?: "All"
+            val isChecked = (option == null && selected == null) || option == selected
+
+            val chip = Chip(requireContext()).apply {
+                text = label
+                isCheckable = true
+                this.isChecked = isChecked
+                chipMinHeight = (32 * resources.displayMetrics.density).toInt().toFloat()
+                textSize = 12f
+                chipStartPadding = (10 * resources.displayMetrics.density)
+                chipEndPadding = (10 * resources.displayMetrics.density)
+
+                // Background: accent blue when checked, dark surface when not
+                chipBackgroundColor = ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    ),
+                    intArrayOf(
+                        0xFF00a8ff.toInt(),
+                        0xFF1E1E2E.toInt()
+                    )
+                )
+
+                // Text: black-on-blue when checked, white when not
+                setTextColor(ColorStateList(
+                    arrayOf(
+                        intArrayOf(android.R.attr.state_checked),
+                        intArrayOf(-android.R.attr.state_checked)
+                    ),
+                    intArrayOf(
+                        0xFF000000.toInt(),
+                        0xFFCCCCCC.toInt()
+                    )
+                ))
+
+                // Thin border when unchecked
+                chipStrokeColor = ColorStateList.valueOf(0xFF444466.toInt())
+                chipStrokeWidth = (0.8f * resources.displayMetrics.density)
+
+                // No close icon
+                isCloseIconVisible = false
+            }
+
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                if (suppressChipListeners) return@setOnCheckedChangeListener
+                if (isChecked) onSelect(option)
+            }
+
+            group.addView(chip)
+        }
+
+        suppressChipListeners = false
+    }
+
+    /**
+     * Apply all active filters to allLatestMovies and return the filtered list.
+     */
+    private fun applyFilters(): List<Movie> {
+        var list = allLatestMovies
+        selectedCategory?.let { cat ->
+            list = list.filter { it.type.equals(cat, ignoreCase = true) }
+        }
+        selectedGenre?.let { genre ->
+            list = list.filter {
+                it.genre.split(",").any { g -> g.trim().equals(genre, ignoreCase = true) }
+            }
+        }
+        selectedLanguage?.let { lang ->
+            list = list.filter {
+                it.language.split(",").any { l -> l.trim().equals(lang, ignoreCase = true) }
+            }
+        }
+        selectedYear?.let { year ->
+            list = list.filter { it.year == year }
+        }
+        return list
+    }
+
     private fun refreshGrid() {
         if (!isAdded) return
+        val filtered = applyFilters()
         val start = currentPage * pageSize
-        val end = min(start + pageSize, allLatestMovies.size)
-        val pageMovies = if (start < allLatestMovies.size) allLatestMovies.subList(start, end) else emptyList()
+        val end = min(start + pageSize, filtered.size)
+        val pageMovies = if (start < filtered.size) filtered.subList(start, end) else emptyList()
+
+        // Pinned movies always show at top (not affected by filters)
         val displayMovies = pinnedMovies + pageMovies
         featuredAdapter?.updateMovies(displayMovies)
 
         val empty = displayMovies.isEmpty()
         tvEmptyFeatured.visibility = if (empty) View.VISIBLE else View.GONE
 
-        val totalPages = if (allLatestMovies.isEmpty()) 0 else ceil(allLatestMovies.size.toDouble() / pageSize).toInt()
+        val totalPages = if (filtered.isEmpty()) 0 else ceil(filtered.size.toDouble() / pageSize).toInt()
         buildPagination(totalPages)
     }
 
@@ -211,7 +393,6 @@ class HomeFragment : Fragment() {
     private fun buildPageList(total: Int, current: Int): List<Int> {
         if (total <= 8) return (1..total).toList()
         val pages = mutableListOf<Int>()
-        // Always show first 2 and last 2
         val surrounding = (maxOf(1, current - 1)..minOf(total, current + 1)).toList()
         val allVisible = (listOf(1, 2) + surrounding + listOf(total - 1, total)).distinct().sorted()
         var prev = 0
