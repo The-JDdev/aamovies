@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.os.Build
@@ -15,6 +16,8 @@ import com.aamovies.aamovies.R
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * MyFirebaseMessagingService — Native FCM receiver.
@@ -28,11 +31,11 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     companion object {
         private const val TAG = "FCMService"
-        private const val TOPIC = "aamovies_all_users"
+        const val TOPIC = "new_movies"
         private const val CHANNEL_ID = "aamovies_notifications"
-        private const val CHANNEL_NAME = "Aamovies Notifications"
+        private const val CHANNEL_NAME = "AAMovies Notifications"
         private const val PREFS_NAME = "aamovies_prefs"
-        private const val KEY_SUBSCRIBED = "fcm_subscribed"
+        private const val KEY_SUBSCRIBED = "fcm_subscribed_v2"
 
         /**
          * Called from MainActivity.onCreate() — subscribes silently on very first launch.
@@ -67,34 +70,42 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val title = message.notification?.title
             ?: message.data["title"]
-            ?: "Aamovies"
+            ?: "New Movie on AAMovies"
 
         val body = message.notification?.body
             ?: message.data["body"]
-            ?: return  // Silent message with no body — ignore
+            ?: return
 
         val imageUrl = message.notification?.imageUrl?.toString()
             ?: message.data["image"]
 
-        val deepLink = message.data["deep_link"]
+        val posterBitmap: Bitmap? = imageUrl?.let { downloadBitmap(it) }
 
-        showNotification(title, body, imageUrl, deepLink)
+        showNotification(title, body, posterBitmap)
     }
 
-    private fun showNotification(
-        title: String,
-        body: String,
-        imageUrl: String?,
-        deepLink: String?
-    ) {
+    private fun downloadBitmap(url: String): Bitmap? {
+        return try {
+            val connection = URL(url).openConnection() as HttpURLConnection
+            connection.connectTimeout = 8000
+            connection.readTimeout = 8000
+            connection.doInput = true
+            connection.connect()
+            BitmapFactory.decodeStream(connection.inputStream)
+        } catch (e: Exception) {
+            Log.e(TAG, "Poster download failed: ${e.message}")
+            null
+        }
+    }
+
+    private fun showNotification(title: String, body: String, posterBitmap: Bitmap?) {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Create channel for Android 8+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Movie updates and announcements from Aamovies"
+                description = "New movie alerts from AAMovies"
                 enableLights(true)
                 enableVibration(true)
             }
@@ -103,27 +114,36 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
         val intent = Intent(this, MainActivity::class.java).apply {
             addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            deepLink?.let { putExtra("deep_link", it) }
         }
         val pendingFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         else PendingIntent.FLAG_UPDATE_CURRENT
 
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, pendingFlags)
-
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val largeIcon = BitmapFactory.decodeResource(resources, R.drawable.logo)
+        val appIcon = BitmapFactory.decodeResource(resources, R.drawable.logo)
 
         val builder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setLargeIcon(largeIcon)
+            .setLargeIcon(posterBitmap ?: appIcon)
             .setContentTitle(title)
             .setContentText(body)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setAutoCancel(true)
             .setSound(soundUri)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
+
+        if (posterBitmap != null) {
+            builder.setStyle(
+                NotificationCompat.BigPictureStyle()
+                    .bigPicture(posterBitmap)
+                    .bigLargeIcon(null as Bitmap?)
+                    .setBigContentTitle(title)
+                    .setSummaryText(body)
+            )
+        } else {
+            builder.setStyle(NotificationCompat.BigTextStyle().bigText(body))
+        }
 
         nm.notify(System.currentTimeMillis().toInt(), builder.build())
     }

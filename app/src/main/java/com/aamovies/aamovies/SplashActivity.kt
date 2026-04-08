@@ -11,6 +11,7 @@ import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.aamovies.aamovies.services.MyFirebaseMessagingService
 
 /**
  * SplashActivity — Native Netflix-style splash screen.
@@ -110,6 +111,9 @@ class SplashActivity : AppCompatActivity() {
         logo.startAnimation(logoIntro)
         logo.postDelayed({ logo.startAnimation(logoOutro) }, 0)
         tagline.startAnimation(taglineFadeIn)
+
+        // Subscribe to FCM topic silently on first launch
+        MyFirebaseMessagingService.subscribeIfNeeded(this)
 
         // Navigate to MainActivity after animation completes
         logo.postDelayed({ launch() }, 1350)
