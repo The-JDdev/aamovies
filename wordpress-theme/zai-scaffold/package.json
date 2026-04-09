@@ -1,0 +1,14 @@
+{
+  "name": "zai-scaffold-theme",
+  "version": "1.0.0",
+  "description": "WordPress theme for Z.ai Scaffold",
+  "scripts": {
+    "build:css": "tailwindcss -i ./input.css -o ./assets/css/main.css --minify",
+    "watch:css": "tailwindcss -i ./input.css -o ./assets/css/main.css --watch"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "tailwindcss": "^4.0.0",
+    "tw-animate-css": "^1.3.5"
+  }
+}
